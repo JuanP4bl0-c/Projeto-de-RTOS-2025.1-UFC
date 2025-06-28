@@ -3,6 +3,7 @@
         "task.h": "c",
         "led.h": "c",
         "cpu_monitor.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "freertos.h": "c"
     }
 }

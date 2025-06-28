@@ -5,6 +5,9 @@ add_executable(app
         adc_custom.c
         bttn.c
         Bluethooth.c
+        i2c.c
+        oled.c
+        fonts.c
 )
 
 target_include_directories(app PUBLIC inc)
@@ -16,6 +19,8 @@ target_link_libraries(
     pico_stdio_usb
     hardware_timer
     hardware_adc
+    hardware_i2c
+    hardware_pwm
 )
 
 pico_add_extra_outputs(app)
