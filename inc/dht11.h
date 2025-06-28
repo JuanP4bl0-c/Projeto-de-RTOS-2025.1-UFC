@@ -1,22 +1,20 @@
-/*
- * dht11.h
- *
- *  Created on: Sep 23, 2024
- *      Author: juan
- */
-
-#ifndef DHT11_H_
-#define DHT11_H_
+#ifndef DHT11_H
+#define DHT11_H
 
 #include <stdint.h>
+#include <stdbool.h>
+#include "oled.h"
+#include <FreeRTOS.h>
+#include "pico/stdlib.h"
 
-void dht11_setup();
-
-void dht11_start();
-
-uint8_t dht11_ping();
-
-uint8_t dht11_read();
+typedef struct {
+    uint led_pin;
+    uint temperatura;
+    uint humidade;
+} dht11_params_t;
 
 
-#endif /* DHT11_BARE_METAL_CUSTOM_LIB_H_ */
+bool dht11_read(uint gpio, uint8_t *temperature, uint8_t *humidity);
+void dht11_task(void *params);
+
+#endif

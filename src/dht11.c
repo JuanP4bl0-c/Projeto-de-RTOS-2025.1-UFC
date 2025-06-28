@@ -1,92 +1,68 @@
-/*
- * dht11.c
- *
- *  Created on: Sep 23, 2024
- *      Author: juan
- */
-
-#include "stm32f1xx.h"
-#include <stdint.h>
 #include "dht11.h"
-#include "tim2.h"
 
-#include "Usart1.h"
-
-//dht11
-#define DHT11_PIN 	0x200
-#define DHT11_GRUPO GPIOB
-
-void dht11_setup(){
-
-	RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
-
-	DHT11_GRUPO->CRH &= ~(GPIO_CRH_MODE9 | GPIO_CRH_CNF9);
-	DHT11_GRUPO->CRH |= GPIO_CRH_MODE9_1;
-
-    DHT11_GRUPO->ODR &= ~DHT11_PIN;  // Pino em LOW
-
-}
-
-void dht11_start(){
-
-	dht11_setup();
-
-	DHT11_GRUPO->ODR &= ~DHT11_PIN;
-	TIM2_delay_ms(18);
-
-	DHT11_GRUPO->ODR |= DHT11_PIN;
-	TIM2_delay_us(30);
-
-}
-
-uint8_t dht11_ping() {
-
-	dht11_start();
+#define DHT_MAX_TIMINGS 85
 
 
-    uint8_t sinal = 0;
 
-    DHT11_GRUPO->CRH &= ~(GPIO_CRH_MODE9 | GPIO_CRH_CNF9);
-    DHT11_GRUPO->CRH |= GPIO_CRH_CNF9_0; //float input
+bool dht11_read(uint gpio, uint8_t *temperature, uint8_t *humidity) {
+    int data[5] = {0,0,0,0,0};
+    int bitidx = 0, counter = 0, laststate = 1, j = 0;
 
-    // Esperar o DHT11 puxar o pino para baixo
-    TIM2_delay_us(40);
+    gpio_init(gpio);
+    gpio_set_dir(gpio, GPIO_OUT);
+    gpio_put(gpio, 0);
+    sleep_ms(18);
+    gpio_put(gpio, 1);
+    sleep_us(40);
+    gpio_set_dir(gpio, GPIO_IN);
 
-    if (!(DHT11_GRUPO->IDR & DHT11_PIN)){
-    	//uart_write("pong!\n\r");
-    	TIM2_delay_us(80);
-        if (DHT11_GRUPO->IDR & DHT11_PIN) {
-            sinal = 1; // DHT11 respondeu
-            //uart_write("pong!\n\r");
+    for (int i = 0; i < DHT_MAX_TIMINGS; i++) {
+        counter = 0;
+        while (gpio_get(gpio) == laststate) {
+            counter++;
+            sleep_us(1);
+            if (counter == 255) break;
+        }
+        laststate = gpio_get(gpio);
+        if (counter == 255) break;
+        if ((i >= 4) && (i % 2 == 0)) {
+            data[j/8] <<= 1;
+            if (counter > 40) data[j/8] |= 1;
+            j++;
         }
     }
 
-    // Esperar o fim da resposta
-    while (DHT11_GRUPO->IDR & DHT11_PIN);
-    //uart_write("\n\r ping encerrado\n\r");
-    return sinal;
+    if ((j >= 40) &&
+        (data[4] == ((data[0] + data[1] + data[2] + data[3]) & 0xFF))) {
+        *humidity = data[0];
+        *temperature = data[2];
+        return true;
+    } else {
+        return false;
+    }
 }
 
+void oled_write_uint8(uint8_t x, uint8_t page, uint8_t value, const char *label) {
+    char buffer[20];
+    if (label)
+        sprintf(buffer, "%s: %u", label, value);
+    else
+        sprintf(buffer, "%u", value);
+    oled_write_string(x, page, buffer);
+}
 
-
-
-uint8_t dht11_read(){
-	uint8_t i, result = 0;
-
-    for (i = 0; i < 8; i++) {
-
-        // Esperar o pino ficar baixo
-        while (!(DHT11_GRUPO->IDR & DHT11_PIN));
-
-        // Esperar 40 us e verificar o estado do pino
-        TIM2_delay_us(40);
-        if (DHT11_GRUPO->IDR & DHT11_PIN) {
-            result |= (1 << (7 - i)); // Se o pino estiver alto, é 1
+void dht11_task(void *params) {
+    dht11_params_t *dht_data = (dht11_params_t *)params;
+    
+    uint8_t temp, hum;
+    while (1) {
+        if (dht11_read(dht_data->led_pin , &temp, &hum)) { // GPIO2, ajuste conforme seu hardware
+            dht_data->temperatura = temp;
+            dht_data->humidade = hum;
+            oled_write_uint8(0, 2, dht_data->temperatura, "Temp");
+            oled_write_uint8(0, 3, dht_data->humidade, "Umid");
+            printf("Temperatura: %d C, Humidade: %d %%\n", dht_data->temperatura, dht_data->humidade);
         }
-
-        // Esperar o pino ficar baixo de novo
-        while (DHT11_GRUPO->IDR & DHT11_PIN);
+        vTaskDelay(pdMS_TO_TICKS(2000)); // Aguarda 2 segundos
     }
-
-    return result;
 }

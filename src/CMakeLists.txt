@@ -8,6 +8,7 @@ add_executable(app
         i2c.c
         oled.c
         fonts.c
+        dht11.c
 )
 
 target_include_directories(app PUBLIC inc)
