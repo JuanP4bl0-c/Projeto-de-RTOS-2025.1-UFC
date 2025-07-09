@@ -9,6 +9,7 @@ add_executable(app
         oled.c
         fonts.c
         dht11.c
+        wifi.c
 )
 
 target_include_directories(app PUBLIC inc)
