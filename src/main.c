@@ -6,6 +6,7 @@
 #include "Bluethooth.h"
 #include "oled.h"
 #include "dht11.h"
+#include "wifi.h"
 
 // Criação da tarefa de leitura do DHT11
 
