@@ -35,7 +35,6 @@ void led_task(void *pvParameters) //parametro utiliza  da strucct BlinkParams_t
         gpio_put(params->led_pin, OFF);
         params->info = OFF;
         vTaskDelay(params->delay_ms / portTICK_PERIOD_MS);
-        
     }
     
     vTaskDelete( NULL );

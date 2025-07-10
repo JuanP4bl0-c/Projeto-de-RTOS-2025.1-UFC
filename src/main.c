@@ -1,37 +1,65 @@
 #include <FreeRTOS.h>
 #include <task.h>
 
+#include "hardware/adc.h"
+#include "pico/stdlib.h"
+
 //Cabecalhos customizados
 #include "led.h"
-#include "Bluethooth.h"
 #include "oled.h"
-#include "dht11.h"
-#include "wifi.h"
+#include "wifi.h" // TODO: substituição do ESP8266 por um módulo Bluetooth
+#include "servo_motor.h"
 
-// Criação da tarefa de leitura do DHT11
+#define ADC_Solo_Humidade 26 // GPIO26 (ADC0)
+#define ADC_Exposição_solar 27 // GPIO27 (ADC1)
+
+// Lê o valor do sensor de umidade de solo (0~4095)
+uint16_t soil_sensor_read(uint adc_channel) {
+    adc_select_input(adc_channel); // Ex: 0 para GPIO26
+    return adc_read();
+}
+
+uint16_t sun_sensor_read(uint adc_channel) {
+    adc_select_input(adc_channel); // Ex: 1 para GPIO27
+    return adc_read();
+}
+
+void sensores_reading_task(void *pvParameters) {
+    
+    //inicalização do ADC da leitura do sensor de umidade do solo
+    adc_init();
+    adc_gpio_init(ADC_Solo_Humidade);
+
+    while (true) {
+        uint16_t valor_soil = soil_sensor_read(0); // Canal 0
+        printf("Valor do sensor de umidade do solo: %d\n", valor_soil);
+        
+        uint16_t valor_sun = sun_sensor_read(1); // Canal 0
+        printf("Valor do sensor de luz: %d\n", valor_sun);
+
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Espera 1 segundo
+    }
+}
+
 
 int main() {
     
     BlinkParams_t led0 = {LED_0,NULL, LED_Sample_Rate, "LED 0"};
-    dht11_params_t dht11_data = {21, 0, 0}; // GPIO2 para o DHT11, ajuste conforme seu hardware
     
     //Inicialização do hardware
-    stdio_init_all();
-    oled_init();
-    
+    oled_init();   
     oled_fill_screen();
     oled_write_string(0, 0, "1234567890");
     oled_write_string(0, 1, "PICO + FREERTOS");
-    Bluethooth_Setup();
+    oled_write_string(0, 2, "TESTE DE ADC E DE SERVO");
+    
 
-
-
+    
+    stdio_init_all();
+    
     xTaskCreate(led_task, "LED_0", 256, &led0, 4, NULL);
-    xTaskCreate(Task_Bluetooth, "BT_send", 256, NULL, 3, NULL);
-    xTaskCreate(Task_Bluetooth_Receive, "BT_receive", 256, NULL, 3, NULL);
-    xTaskCreate(dht11_task, "Dht11_read", 256, NULL, 2, NULL);
-
-
+    //xTaskCreate(servo_task_test, "Servo Motor", 256, NULL, 2, NULL);
+    xTaskCreate(sensores_reading_task, "Sensores Reading", 256, NULL, 2, NULL);
     vTaskStartScheduler();
 
     while(1);

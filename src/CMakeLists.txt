@@ -10,6 +10,7 @@ add_executable(app
         fonts.c
         dht11.c
         wifi.c
+        servo_motor.c
 )
 
 target_include_directories(app PUBLIC inc)
