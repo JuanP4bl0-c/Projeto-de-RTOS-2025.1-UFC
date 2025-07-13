@@ -47,19 +47,13 @@ int main() {
     BlinkParams_t led0 = {LED_0,NULL, LED_Sample_Rate, "LED 0"};
     
     //Inicialização do hardware
-    oled_init();   
-    oled_fill_screen();
-    oled_write_string(0, 0, "1234567890");
-    oled_write_string(0, 1, "PICO + FREERTOS");
-    oled_write_string(0, 2, "TESTE DE ADC E DE SERVO");
-    
-
+    // esp8266_send_cmd("AT+RST"); // Reinicia o módulo ESP8266
     
     stdio_init_all();
-    
-    xTaskCreate(led_task, "LED_0", 256, &led0, 4, NULL);
-    //xTaskCreate(servo_task_test, "Servo Motor", 256, NULL, 2, NULL);
-    xTaskCreate(sensores_reading_task, "Sensores Reading", 256, NULL, 2, NULL);
+
+    //xTaskCreate(led_task, "LED_0", 256, &led0, 2, NULL);
+    // xTaskCreate(esp8266_task, "ESP8266", 256, NULL, 4, NULL);
+    xTaskCreate(esp8266_ap_webserver_task, "ESP8266_AP", 256, NULL, 4, NULL);
     vTaskStartScheduler();
 
     while(1);

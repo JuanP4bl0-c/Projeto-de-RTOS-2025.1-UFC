@@ -18,5 +18,6 @@ void esp8266_uart_init(void);
 void esp8266_send_cmd(const char *cmd);
 void esp8266_read_response(char *buffer, size_t maxlen);
 void esp8266_connect_wifi(const char *ssid, const char *password);
-
+void esp8266_task(void *pvParameters);
+void esp8266_ap_webserver_task(void *pvParameters);
 #endif
