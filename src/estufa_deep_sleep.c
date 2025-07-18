@@ -3,7 +3,7 @@
 #include <hardware/sleep.h>
 #include <pico/stdlib.h>
 #include <dth11.h>
-#include <wifi.h>>
+#include <wifi.h>
 
 #define SLEEP_DURATION 300000
 #define WAKE_PIN 2
