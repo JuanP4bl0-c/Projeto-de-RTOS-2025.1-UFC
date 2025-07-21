@@ -50,6 +50,8 @@ typedef struct {
     uint8_t horas_registradas; // Exposição solar em horas
     const char *nome; // Nome do cultivo
     bool daytime; // Indica se o cultivo é diurno
+    
+
 } Cultivo_t;
 
 // Estrutura para controle do sistema
@@ -70,7 +72,7 @@ void print_ntc_voltage(void);
 
 // Variáveis globais
 Sistema_t sistema;
-Cultivo_t cultivo = {65, 60, 6, "ALFACE", true};
+Cultivo_t cultivo = {65, 60, 6, "Alface", true};
 
 void timer_callback(TimerHandle_t xTimer) {
     xSemaphoreGive(sistema.semaphore);
@@ -96,7 +98,7 @@ void sensor_task(void *pvParameters) {
         // Processamento
         uint8_t humidade_percent = (sistema.ultima_humidade * 100) / ADC_MAX_VALUE;
         uint8_t exposicao_percent = (sistema.ultima_exposicao * 100) / ADC_MAX_VALUE;
-        print_oled_stats(humidade_percent,exposicao_percent,cultivo.exposicao_solar_ideal); // Atualiza o OLED com as leituras
+        print_oled_stats(humidade_percent,exposicao_percent,cultivo.exposicao_solar_ideal,cultivo.nome); // Atualiza o OLED com as leituras
         
         //tratamento de umidade
         if(humidade_percent < cultivo.humidade_ideal) {
@@ -120,6 +122,12 @@ void sensor_task(void *pvParameters) {
     }
 }
 
+void tratamento(){
+    // Função de tratamento de dados, se necessário
+    // Pode ser usada para processar leituras adicionais ou realizar ações específicas
+    printf("Tratamento de dados em execução...\n");
+}
+
 int main() {
 
     BlinkParams_t led0 = {LED_0, NULL, LED_Sample_Rate, "LED 0"}; // colocado no início para debbug
@@ -134,7 +142,6 @@ int main() {
     oled_init();
 
     oled_fill_screen(OLED_CLS); // Limpa a tela OLED
-    
 
     // Criação do semáforo
     sistema.semaphore = xSemaphoreCreateBinary();
