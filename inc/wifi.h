@@ -14,10 +14,17 @@
 #define ESP8266_TX_PIN 4
 #define ESP8266_RX_PIN 5
 
+#define SSID "WIFI" 
+#define PSWD "Admin" 
+
 void esp8266_uart_init(void);
 void esp8266_send_cmd(const char *cmd);
 void esp8266_read_response(char *buffer, size_t maxlen);
-void esp8266_connect_wifi(const char *ssid, const char *password);
-void esp8266_task(void *pvParameters);
+// void esp8266_connect_wifi(const char *ssid, const char *password);
+void esp8266_wifi_config(void);
+void esp8266_ap_webserver_setup(void);
+
 void esp8266_ap_webserver_task(void *pvParameters);
+
+
 #endif

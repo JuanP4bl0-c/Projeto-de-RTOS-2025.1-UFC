@@ -14,6 +14,28 @@ void oled_send_data(uint8_t *data, size_t len) {
     i2c_write(OLED_ADDR, buf, len + 1);
 }
 
+void uint8_to_string(uint8_t value, char* buffer) {
+    char* p = buffer;
+    uint8_t digits = 0;
+    uint8_t temp = value;
+
+    // Conta os dígitos
+    do {
+        digits++;
+        temp /= 10;
+    } while(temp);
+
+    // Posiciona o terminador nulo
+    p += digits;
+    *p = '\0';
+
+    // Converte cada dígito (começando pelo último)
+    do {
+        *--p = '0' + (value % 10);
+        value /= 10;
+    } while(value);
+}
+
 // Inicializa o OLED
 void oled_init() {
 
@@ -46,13 +68,14 @@ void oled_init() {
     oled_send_command(0xAF); // Display ON
 }
 
-void oled_fill_screen() {
+void oled_fill_screen(int fill) {
+
     for (uint8_t page = 0; page < 8; page++) {
         oled_send_command(0xB0 + page); // Set page address
         oled_send_command(0x00);        // Set lower column
         oled_send_command(0x10);        // Set higher column
         uint8_t line[OLED_WIDTH];
-        for (int i = 0; i < OLED_WIDTH; i++) line[i] = 0xFF; // Todos pixels ON
+        for (int i = 0; i < OLED_WIDTH; i++) line[i] = fill; // Todos pixels ON
         oled_send_data(line, OLED_WIDTH);
     }
 }
@@ -72,3 +95,38 @@ void oled_write_string(uint8_t x, uint8_t page, const char *str) {
         str++;
     }
 }
+
+void print_oled_stats(uint8_t humidade_percent, uint8_t exposicao_percent, uint16_t exposicao_solar_ideal) {
+        // Preparar strings para exibição no OLED
+        char str_hum[4];  // 3 dígitos + null terminator
+        char str_sol[4];
+        char str_sol_max[8];
+        
+        uint8_to_string(humidade_percent, str_hum);
+        uint8_to_string(exposicao_percent, str_sol);       
+        uint8_to_string(exposicao_solar_ideal, str_sol_max);       
+      
+
+
+        printf("\n--- LEITURA PERIÓDICA ---\n");
+        printf("Umidade: %d%%\n", humidade_percent);
+        printf("Exposição Solar: %d%%\n", exposicao_percent);
+
+
+        // Montar strings completas
+        char display_line0[30];
+        char display_line1[20];
+        char display_line2[30];
+        
+        const char *nome = "NOME NÃO DEFINIDO";
+
+        snprintf(display_line0, sizeof(display_line1), "CULTIVO: %s", nome);
+        snprintf(display_line1, sizeof(display_line1), "UMIDADE: %s%%", str_hum);
+        snprintf(display_line2, sizeof(display_line2), "%s%% / %s", str_sol,str_sol_max);
+
+        oled_write_string(0, 0,display_line0);
+        oled_write_string(0, 2,display_line1);
+        oled_write_string(0, 4,"EXPOSICAO SOLAR:");
+        oled_write_string(0, 6,display_line2);
+}
+

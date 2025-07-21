@@ -5,6 +5,7 @@
         "cpu_monitor.h": "c",
         "stdio.h": "c",
         "freertos.h": "c",
-        "wifi.h": "c"
+        "wifi.h": "c",
+        "i2c.h": "c"
     }
 }

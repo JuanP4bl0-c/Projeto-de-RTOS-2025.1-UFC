@@ -16,11 +16,13 @@
 
 #define OLED_WIDTH 128
 #define OLED_HEIGHT 64
+#define OLED_CLS 0x00 // Clear screen command
 
 void oled_send_command(uint8_t cmd);
 void oled_init();
 void oled_send_data(uint8_t *data, size_t len);
 void oled_fill_screen();
 void oled_write_string(uint8_t x, uint8_t page, const char *str);
+void print_oled_stats(uint8_t humidade_percent, uint8_t exposicao_percent, uint16_t exposicao_solar_ideal);
 
 #endif
