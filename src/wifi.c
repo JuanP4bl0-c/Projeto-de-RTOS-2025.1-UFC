@@ -1,5 +1,26 @@
 #include "wifi.h"
 
+const char *HTML_CONTENT = 
+"HTTP/1.1 200 OK\r\n"
+"Content-Type: text/html\r\n"
+"Connection: close\r\n"
+"\r\n"
+"<!DOCTYPE html>\n"
+"<html>\n"
+"<head>\n"
+"    <title>Estufa Automatizada</title>\n"
+"    <style>\n"
+"        body { font-family: Arial; text-align: center; }\n"
+"        h1 { color: #118911ff; }\n"
+"    </style>\n"
+"</head>\n"
+"<body>\n"
+"    <h1>Estufa Automatizada</h1>\n"
+"    <h2>Exposição solar diaria: /6horas</h2>\n"
+"    <h2>Umidade: 60%</h2>\n"
+"</body>\n"
+"</html>\r\n";
+
 void esp8266_uart_init(void) {
     uart_init(ESP8266_UART_ID, ESP8266_BAUDRATE);
     gpio_set_function(ESP8266_TX_PIN, GPIO_FUNC_UART);
@@ -25,52 +46,14 @@ void esp8266_read_response(char *buffer, size_t maxlen) {
     buffer[idx] = '\0';
 }   
 
-void esp8266_connect_wifi(const char *ssid, const char *password) {
-    char resp[128];
+void esp8266_uart_define(void) {
 
-    esp8266_send_cmd("AT");
-    vTaskDelay(1000);
-    esp8266_read_response(resp, sizeof(resp));
-    printf("Resposta: %s\n", resp);
-    
-    esp8266_send_cmd("AT+CWMODE=1"); // modo station
-    vTaskDelay(1000);
-    esp8266_read_response(resp, sizeof(resp));
-    printf("Resposta: %s\n", resp);
-    
-    char cmd[128];
-    sprintf(cmd, "AT+CWJAP=\"%s\",\"%s\"", ssid, password);
-    esp8266_send_cmd(cmd);
-    vTaskDelay(5000);
-    esp8266_read_response(resp, sizeof(resp));
-    printf("Resposta: %s\n", resp);
+
 }
 
-void esp8266_task(void *pvParameters) {
-    vTaskDelay(pdMS_TO_TICKS(4000)); // Espera 2 segundos
-    (void) pvParameters;
-    esp8266_uart_init(); // Chama só uma vez!
-    printf("Iniciando tarefa ESP8266...\n");
-    esp8266_connect_wifi("Teste", "bolodechocolate"); // Substitua por suas credenciais Wi-Fi
-    vTaskDelay(pdMS_TO_TICKS(2000)); // Espera 2 segundos
-    printf("Conectado ao Wi-Fi\n");
-    
-    char response[128];
-    while (true) {
-        esp8266_read_response(response, sizeof(response));
-        printf("ESP8266 Response: %s\n", response);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-}
-
-#include "wifi.h"
-
-// Task para criar AP e servir página HTML "Hello world"
 void esp8266_ap_webserver_task(void *pvParameters) {
     char resp[256];
     
-    vTaskDelay(pdMS_TO_TICKS(3000)); // Espera 2 segundos
-    esp8266_uart_init();
     vTaskDelay(pdMS_TO_TICKS(2000));
 
     // 1. Reinicia o ESP8266
