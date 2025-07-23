@@ -9,7 +9,6 @@ target_link_libraries(
     pico_stdlib 
     lib 
     pico_stdio_usb
-    #hardware_timer
 )
 
 pico_add_extra_outputs(app)

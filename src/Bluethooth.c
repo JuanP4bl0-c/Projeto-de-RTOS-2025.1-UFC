@@ -6,14 +6,15 @@ void Bluethooth_Setup() {
     gpio_set_function(BLUETHOOTH_RX_PIN, GPIO_FUNC_UART);
 
     // Inicializa o UART
-    uart_init(uart0, BAUD_RATE);
+    uart_init(UART_ID, BAUD_RATE);
     
     // Configura os pinos do UART
-    uart_set_hw_flow(uart0, false, false);
-    uart_set_format(uart0, 8, 1, UART_PARITY_NONE);
+    uart_set_hw_flow(UART_ID, false, false);
+    uart_set_format(UART_ID, 8, 1, UART_PARITY_NONE);
     
     // Configura o buffer de transmissão e recepção
-    uart_set_fifo_enabled(uart0, true);
+    uart_set_fifo_enabled(uart1, true);
+    
     
 }
 

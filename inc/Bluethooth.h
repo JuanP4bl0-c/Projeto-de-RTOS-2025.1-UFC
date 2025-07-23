@@ -7,10 +7,10 @@
 #include "hardware/uart.h"
 #include <stdio.h>
 
-#define BLUETHOOTH_TX_PIN 0
-#define BLUETHOOTH_RX_PIN 1
+#define BLUETHOOTH_TX_PIN 4
+#define BLUETHOOTH_RX_PIN 5
 #define BAUD_RATE 9600
-#define UART_ID uart0
+#define UART_ID uart1
 
 void Bluethooth_Setup();
 

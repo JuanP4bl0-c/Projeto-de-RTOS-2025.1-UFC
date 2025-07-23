@@ -96,19 +96,22 @@ void oled_write_string(uint8_t x, uint8_t page, const char *str) {
     }
 }
 
-void print_oled_stats(uint8_t humidade_percent, uint8_t exposicao_percent, uint16_t exposicao_solar_ideal,const char* nome) {
+void print_oled_stats(uint8_t humidade_percent, uint8_t exposicao_percent, uint16_t exposicao_solar_ideal,uint8_t temperatura,const char* nome) {
         // Preparar strings para exibição no OLED
         char str_hum[4];  // 3 dígitos + null terminator
         char str_sol[4];
+        char str_tp[4];
         char str_sol_max[8];
         
         uint8_to_string(humidade_percent, str_hum);
         uint8_to_string(exposicao_percent, str_sol);       
+        uint8_to_string(temperatura, str_tp);       
         uint8_to_string(exposicao_solar_ideal, str_sol_max);       
 
         printf("\n--- LEITURA PERIÓDICA ---\n");
         printf("Cultivo: %s\n", nome);
         printf("Umidade: %d%%\n", humidade_percent);
+        printf("Temperatura: %dC\n", temperatura);
         printf("Exposição Solar: %d%%\n", exposicao_percent);
 
         // Montar strings completas
@@ -118,14 +121,20 @@ void print_oled_stats(uint8_t humidade_percent, uint8_t exposicao_percent, uint1
         char display_line3[20];
 
         snprintf(display_line0, sizeof(display_line1), "Cultivo: %s",nome);
-        snprintf(display_line1, sizeof(display_line1), "Umidade: %s%%", str_hum);
-        snprintf(display_line2, sizeof(display_line2), "Temperatura: %sC", str_sol,str_sol_max);
-        snprintf(display_line3, sizeof(display_line3), "Exposicao Solar:%s%%", str_sol,str_sol_max);
+        snprintf(display_line1, sizeof(display_line1), "Umidade: %s%%   ", str_hum);
+        snprintf(display_line2, sizeof(display_line2), "Temperatura: %sC   ", str_tp);
+        snprintf(display_line3, sizeof(display_line3), "Exposicao Solar:%s%%   ", str_sol,str_sol_max);
 
         oled_write_string(0, 0,display_line0);
         oled_write_string(0, 2,display_line1);
         oled_write_string(0, 4,display_line2);
         oled_write_string(0, 6,display_line3);
-        oled_write_string(0, 7, " \\^0w0^/");
 }
 
+void oled_power_off(void) {
+    oled_send_command(0xAE); // Display OFF (SSD1306 command)
+}
+
+void oled_power_on(void) {
+    oled_send_command(0xAF); // Display ON (SSD1306 command)
+}

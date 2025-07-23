@@ -59,9 +59,8 @@ void dht11_task(void *params) {
         if (dht11_read(dht_data->led_pin , &temp, &hum)) { // GPIO2, ajuste conforme seu hardware
             dht_data->temperatura = temp;
             dht_data->humidade = hum;
-            oled_write_uint8(0, 2, dht_data->temperatura, "Temp");
-            oled_write_uint8(0, 3, dht_data->humidade, "Umid");
-            printf("Temperatura: %d C, Humidade: %d %%\n", dht_data->temperatura, dht_data->humidade);
+            oled_write_uint8(0, 6, dht_data->temperatura, "Temperatura:");
+            printf("Temperatura: %dC\n", dht_data->temperatura);
         }
         vTaskDelay(pdMS_TO_TICKS(2000)); // Aguarda 2 segundos
     }

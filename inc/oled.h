@@ -23,6 +23,9 @@ void oled_init();
 void oled_send_data(uint8_t *data, size_t len);
 void oled_fill_screen();
 void oled_write_string(uint8_t x, uint8_t page, const char *str);
-void print_oled_stats(uint8_t humidade_percent, uint8_t exposicao_percent, uint16_t exposicao_solar_ideal, const char* nome);
+void print_oled_stats(uint8_t humidade_percent, uint8_t exposicao_percent, uint16_t exposicao_solar_ideal,uint8_t temperatura, const char* nome);
+void oled_power_off(void);
+void oled_power_on(void);
+void uint8_to_string(uint8_t value, char *str);
 
 #endif
